@@ -1,0 +1,83 @@
+# Kortix is open source. This manifest is the candidate sourcing agent:
+# one agent block, one skill, two connectors with the rules that stop a run,
+# and the daily cron trigger. Every key here is from the kortix.yaml
+# reference at https://kortix.com/docs/developers#kortixyaml-reference
+#
+# yaml-language-server: $schema=https://kortix.com/schema/kortix.v3.schema.json
+
+kortix_version: 3
+
+project:
+  name: candidate-sourcing-agent
+  description: Sources candidates for one open role, dedupes against the Greenhouse pipeline, and drafts outreach for a recruiter to review.
+
+default_agent: candidate-sourcing
+
+skills:
+  outbound-sourcing: skills/outbound-sourcing
+
+connectors:
+  - slug: greenhouse
+    name: Greenhouse
+    provider: composio
+    app: greenhouse
+    policy_sets:
+      pipeline-read-only:
+        description: Reads the role's pipeline. Any write waits for a person.
+        policies:
+          - match: "greenhouse.get_*"
+            action: always_run
+          - match: "greenhouse.list_*"
+            action: always_run
+          - match: "greenhouse.*"
+            action: require_approval
+
+  - slug: linkedin
+    name: LinkedIn
+    provider: composio
+    app: linkedin
+    policy_sets:
+      search-only:
+        description: Searches and reads profiles. Any write waits for a person.
+        policies:
+          - match: "linkedin.search_*"
+            action: always_run
+          - match: "linkedin.get_*"
+            action: always_run
+          - match: "linkedin.*"
+            action: require_approval
+
+# The decision for a connector call that no rule above matches: a read runs,
+# a write or a delete waits for a person.
+policy:
+  default_mode: risk
+
+approvals:
+  ttl: 24h
+
+agents:
+  candidate-sourcing:
+    description: Sources candidates for one open role, skips anyone already in the Greenhouse pipeline, and drafts outreach for a recruiter to review.
+    mode: primary
+    prompt_file: agents/candidate-sourcing.md
+    permission: allow
+    skills: [outbound-sourcing]
+    connectors: [greenhouse, linkedin]
+    policy_sets:
+      greenhouse: pipeline-read-only
+      linkedin: search-only
+    workspace: { project_repository: true }
+
+triggers:
+  - slug: daily-sourcing-sweep
+    name: Daily candidate-sourcing sweep
+    enabled: true
+    overlap: skip
+    max_runs_per_hour: 2
+    "on":
+      cron: "0 0 7 * * *"
+      timezone: UTC
+    run:
+      agent: candidate-sourcing
+      session: fresh
+      prompt: Load the outbound-sourcing skill and run one complete sourcing sweep for the open role.
