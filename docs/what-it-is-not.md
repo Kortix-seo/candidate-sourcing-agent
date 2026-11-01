@@ -26,7 +26,7 @@ There is one cron line, one role per run, and one batch per run. No round-robin 
 
 ## When a sourcing product is the better buy
 
-A product that ships its own candidate index, sequences, and an inbox with deliverability tooling solves a different problem, and it solves it for a team that will not run a repository. Four cases point that way:
+A product that ships its own candidate index, sequences, and an inbox with deliverability tooling solves a different problem, and it solves it for a team that will not run a repository. The split between what this repository does and what a recruiter still owns is [sourcing versus recruiting](https://candidatesourcingguide.com/candidate-sourcing-vs-recruiting). Four cases point that way:
 
 - You need a searchable database of people across many sources.
 - Recruiters on the team will not read a manifest or review a change request.
