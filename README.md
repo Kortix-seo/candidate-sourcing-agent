@@ -32,7 +32,7 @@ The guardrails are quoted as written, and each one is checkable. Two are enforce
 
 ## Run it on a Kortix project
 
-An agent is one `agents.<name>` block in `kortix.yaml`: its behavior (`prompt` or `prompt_file`, `model`, `permission`) and the registered skills, tools, commands and extensions it enables. `agents/<name>.md` holds the prompt alone. The manifest here is a working `kortix_version: 3` file, so a clone needs only a login and a ship:
+An agent is one `agents.<name>` block in `kortix.yaml`: its behavior (`prompt` or `prompt_file`, `model`, `permission`) and the registered skills, tools, commands and extensions it enables. `agents/<name>.md` holds the prompt alone. The manifest here is complete, so a clone needs only a login and a ship:
 
 ```bash
 git clone https://github.com/Kortix-seo/candidate-sourcing-agent
